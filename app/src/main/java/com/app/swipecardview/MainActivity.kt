@@ -3,13 +3,14 @@ package com.app.swipecardview
 import android.animation.ArgbEvaluator
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.viewpager.widget.ViewPager
 import com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var models : ArrayList<Model>
+    private lateinit var models: ArrayList<Model>
     private lateinit var myAdapter: CustomAdapter
     private lateinit var myViewPager: ViewPager
     private lateinit var colors: Array<Int>
@@ -29,7 +30,20 @@ class MainActivity : AppCompatActivity() {
 
         myAdapter = CustomAdapter(models, this)
         myViewPager.adapter = myAdapter
-        myViewPager.setPadding(150, 0, 150, 0)
+        myViewPager.setPadding(100, 0, 100, 0)
+        myViewPager.setPageTransformer(false, object : ViewPager.PageTransformer {
+            override fun transformPage(page: View, position: Float) {
+
+                if(position <= -1.0F || position >= 1.0F) {
+                    page.setAlpha(0.5F); // 아직 안나온 페이지
+                } else if( position == 0.0F ) {
+                    page.setAlpha(1.0F); // 지금페이지
+                } else { //지나간 페이지
+                    // position is between -1.0F & 0.0F OR 0.0F & 1.0F
+                    page.setAlpha(1.5F - Math.abs(position) );
+                }
+            }
+        })
 
         dots_indicator.setViewPager(myViewPager)
 
@@ -42,7 +56,7 @@ class MainActivity : AppCompatActivity() {
 //
 //        colors = colors_tmp
 
-        myViewPager.addOnPageChangeListener(object  : ViewPager.OnPageChangeListener{
+        myViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {
             }
 
@@ -52,6 +66,8 @@ class MainActivity : AppCompatActivity() {
 //                        argbEvaluator.evaluate(positionOffset, colors[position], colors[position + 1]) as Int
 //                    )
 //                }
+                myAdapter.setCurrentItem(myViewPager.currentItem)
+
             }
 
             override fun onPageSelected(position: Int) {
